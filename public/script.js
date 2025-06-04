@@ -8,6 +8,8 @@ const fadedBackgroundTimeElement = document.getElementById('fadedBackgroundTime'
 // Store refs to flip cards and previous values
 let flipCards = [];
 let previousTotalSecondsString = '';
+let lastUpdateTime = 0;
+let isUpdating = false;
 
 // Function to create flip card structure
 function createFlipCard(currentDigit = 0) {
@@ -35,7 +37,8 @@ function createFlipCard(currentDigit = 0) {
         frontFace: frontFace,
         backFace: backFace,
         currentValue: currentDigit,
-        isAnimating: false // Track animation state
+        isAnimating: false,
+        lastAnimationTime: 0
     };
 }
 
@@ -71,10 +74,20 @@ function setupAnimatedDisplay(initialSecondsString) {
 
 // Function to animate a single flip card
 function flipToNewDigit(cardData, newDigit) {
-    // Don't animate if already animating or if value hasn't changed
-    if (cardData.isAnimating || cardData.currentValue === newDigit) return;
+    const now = Date.now();
+    
+    // Don't animate if:
+    // 1. Already animating
+    // 2. Value hasn't changed
+    // 3. Animation was triggered too recently (less than 900ms ago)
+    if (cardData.isAnimating || 
+        cardData.currentValue === newDigit || 
+        (now - cardData.lastAnimationTime) < 900) {
+        return;
+    }
     
     cardData.isAnimating = true;
+    cardData.lastAnimationTime = now;
     
     // Set the back face to show the new digit
     cardData.backFace.textContent = newDigit;
@@ -93,8 +106,14 @@ function flipToNewDigit(cardData, newDigit) {
 
 // Function to update the animated display
 function updateAnimatedDisplay(totalSeconds) {
-    if (!animatedDisplayContainer) return;
-
+    if (!animatedDisplayContainer || isUpdating) return;
+    
+    const now = Date.now();
+    
+    // Throttle updates to prevent too frequent calls
+    if (now - lastUpdateTime < 950) return; // Only update if more than 950ms have passed
+    
+    isUpdating = true;
     const currentTotalSecondsString = totalSeconds.toLocaleString();
     
     // If structure changed significantly, rebuild
@@ -105,11 +124,16 @@ function updateAnimatedDisplay(totalSeconds) {
         currentCommaCount !== previousCommaCount) {
         setupAnimatedDisplay(currentTotalSecondsString);
         previousTotalSecondsString = currentTotalSecondsString;
+        lastUpdateTime = now;
+        isUpdating = false;
         return;
     }
     
     // Only update if the string actually changed
-    if (currentTotalSecondsString === previousTotalSecondsString) return;
+    if (currentTotalSecondsString === previousTotalSecondsString) {
+        isUpdating = false;
+        return;
+    }
     
     // Update each digit with flip animation
     let cardIndex = 0;
@@ -125,6 +149,8 @@ function updateAnimatedDisplay(totalSeconds) {
     }
     
     previousTotalSecondsString = currentTotalSecondsString;
+    lastUpdateTime = now;
+    isUpdating = false;
 }
 
 // Function to update faded background time
@@ -200,7 +226,7 @@ window.addEventListener('load', () => {
     // Log statistics
     calculateAgeStatistics();
     
-    console.log('FlipClock countdown initialized! 🚀');
+    console.log('MASSIVE FlipClock countdown initialized! Numbers will DOMINATE the screen! 🚀💥');
 });
 
 // Add some interactive effects (if elements still exist)
