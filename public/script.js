@@ -1,49 +1,118 @@
 // Target date: July 8, 2031 (your 30th birthday)
 const targetDate = new Date('2031-07-08T00:00:00').getTime();
 
-// DOM elements
-const totalSecondsDisplayElement = document.getElementById('totalSecondsDisplay');
-// const totalSecondsInfoElement = document.getElementById('totalSeconds'); // This is now commented out in HTML
+// DOM elements for the new theme
+const animatedDisplayContainer = document.getElementById('totalSecondsAnimatedDisplay');
+const fadedBackgroundTimeElement = document.getElementById('fadedBackgroundTime');
 
-// Store previous value for animation (optional for total seconds)
-let previousTotalSeconds = null;
+// Store refs to digit reels and previous values for animation
+let digitReels = [];
+let previousTotalSecondsString = '';
+
+// Function to create the initial digit slots
+function setupAnimatedDisplay(initialSecondsString) {
+    if (!animatedDisplayContainer) return;
+    animatedDisplayContainer.innerHTML = ''; // Clear any existing content
+    digitReels = [];
+
+    const parts = initialSecondsString.split(',');
+    parts.forEach((part, index) => {
+        const digitGroup = document.createElement('div');
+        digitGroup.classList.add('digit-group');
+
+        for (let i = 0; i < part.length; i++) {
+            const char = part[i];
+            const slot = document.createElement('div');
+            slot.classList.add('digit-slot');
+
+            const reel = document.createElement('div');
+            reel.classList.add('digit-reel');
+
+            // Populate reel with numbers 0-9
+            for (let j = 0; j <= 9; j++) {
+                const numSpan = document.createElement('span');
+                numSpan.textContent = j;
+                reel.appendChild(numSpan);
+            }
+            slot.appendChild(reel);
+            digitGroup.appendChild(slot);
+            digitReels.push({ reel: reel, digitHeight: 0 }); // digitHeight will be calculated later
+        }
+        animatedDisplayContainer.appendChild(digitGroup);
+
+        if (index < parts.length - 1) {
+            const comma = document.createElement('span');
+            comma.classList.add('comma-separator');
+            comma.textContent = ',';
+            animatedDisplayContainer.appendChild(comma);
+        }
+    });
+
+    // Calculate digit height after DOM is updated (important for animation)
+    if (digitReels.length > 0 && digitReels[0].reel.querySelector('span')) {
+        const sampleDigitSpan = digitReels[0].reel.querySelector('span');
+        const digitHeight = sampleDigitSpan.offsetHeight;
+        digitReels.forEach(dr => dr.digitHeight = digitHeight);
+    }
+}
+
+function updateAnimatedDisplay(totalSeconds) {
+    if (!animatedDisplayContainer || digitReels.length === 0) return;
+
+    const currentTotalSecondsString = totalSeconds.toLocaleString();
+
+    // If the number of digits or commas changes, rebuild the display
+    if (previousTotalSecondsString.length !== currentTotalSecondsString.length || 
+        (previousTotalSecondsString.match(/,/g) || []).length !== (currentTotalSecondsString.match(/,/g) || []).length) {
+        setupAnimatedDisplay(currentTotalSecondsString);
+        if (digitReels.length === 0) return; // Exit if setup failed or resulted in no reels
+    }
+    
+    previousTotalSecondsString = currentTotalSecondsString;
+    let reelIndex = 0;
+
+    for (let i = 0; i < currentTotalSecondsString.length; i++) {
+        const char = currentTotalSecondsString[i];
+        if (char === ',') continue; // Skip commas for reel animation
+
+        if (reelIndex < digitReels.length) {
+            const digit = parseInt(char);
+            const { reel, digitHeight } = digitReels[reelIndex];
+            if (reel && digitHeight > 0) {
+                reel.style.transform = `translateY(-${digit * digitHeight}px)`;
+            }
+            reelIndex++;
+        }
+    }
+}
+
+function updateFadedBackgroundTime(now) {
+    if (!fadedBackgroundTimeElement) return;
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    fadedBackgroundTimeElement.textContent = `${hours}:${minutes}`;
+}
 
 function updateCountdown() {
-    const now = new Date().getTime();
-    const timeRemaining = targetDate - now;
+    const now = new Date();
+    const timeRemaining = targetDate - now.getTime();
 
     if (timeRemaining <= 0) {
-        // Countdown finished
-        if (totalSecondsDisplayElement) totalSecondsDisplayElement.textContent = '0';
-        // if (totalSecondsInfoElement) totalSecondsInfoElement.textContent = '0';
+        if (animatedDisplayContainer) animatedDisplayContainer.innerHTML = '<div class="digit-slot"><span>0</span></div>'; // Simplified end state
         document.querySelector('.info-title').textContent = '🎉 You\'ve reached 30! 🎉';
-        if (document.querySelector('.countdown-label')) {
-            document.querySelector('.countdown-label').textContent = "It's Here!";
+        if (document.querySelector('.countdown-label-main')) {
+            document.querySelector('.countdown-label-main').textContent = "It's Here!";
         }
+        if (fadedBackgroundTimeElement) fadedBackgroundTimeElement.textContent = "--:--";
         return;
     }
 
     const totalSeconds = Math.floor(timeRemaining / 1000);
-    const formattedTotalSeconds = totalSeconds.toLocaleString();
-
-    if (totalSecondsDisplayElement) {
-        // Optional: Add animation if value changes (might be too frequent for seconds)
-        // if (previousTotalSeconds !== null && previousTotalSeconds !== formattedTotalSeconds) {
-        //     totalSecondsDisplayElement.classList.add('pulse');
-        //     setTimeout(() => {
-        //         totalSecondsDisplayElement.classList.remove('pulse');
-        //     }, 700); // Shorter pulse for rapid changes
-        // }
-        totalSecondsDisplayElement.textContent = formattedTotalSeconds;
-        previousTotalSeconds = formattedTotalSeconds;
-    }
-
-    // if (totalSecondsInfoElement) { // This is now commented out in HTML
-    //     totalSecondsInfoElement.textContent = formattedTotalSeconds;
-    // }
+    updateAnimatedDisplay(totalSeconds);
+    updateFadedBackgroundTime(now);
 }
 
-// Function to calculate age-based statistics (like in the first image)
+// Function to calculate age-based statistics (can be kept for console logging)
 function calculateAgeStatistics() {
     const birthDate = new Date('2001-07-08');
     const thirtiethBirthday = new Date('2031-07-08');
@@ -65,26 +134,21 @@ function calculateAgeStatistics() {
     };
 }
 
-// Initialize countdown
-updateCountdown();
-
-// Update every second
-setInterval(updateCountdown, 1000);
-
-// Log statistics on page load
+// Initialize
 window.addEventListener('load', () => {
-    const stats = calculateAgeStatistics();
-    console.log('Age Statistics:', stats);
+    // Initial setup for display based on current remaining seconds
+    const initialTimeRemaining = targetDate - new Date().getTime();
+    const initialTotalSeconds = Math.max(0, Math.floor(initialTimeRemaining / 1000));
+    setupAnimatedDisplay(initialTotalSeconds.toLocaleString());
+    
+    updateCountdown(); // First immediate update
+    setInterval(updateCountdown, 1000); // Subsequent updates
 
-    // Add a subtle fade-in animation to the main elements
-    // Ensure these elements still exist or update selectors if needed
-    const globeContainer = document.querySelector('.globe-container');
-    const countdownContainer = document.querySelector('.countdown-container');
-    const infoSection = document.querySelector('.info-section');
+    calculateAgeStatistics(); // Log stats
 
-    if (globeContainer) globeContainer.style.opacity = '1';
-    if (countdownContainer) countdownContainer.style.opacity = '1';
-    if (infoSection) infoSection.style.opacity = '1';
+    // Fade-in for new elements if desired (ensure selectors match new HTML)
+    const container = document.querySelector('.container');
+    if(container) container.style.opacity = '1'; // Example fade-in for whole container
 });
 
 // Add some interactive effects (if elements still exist)
