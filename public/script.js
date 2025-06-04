@@ -1,91 +1,125 @@
 // Target date: July 8, 2031 (your 30th birthday)
 const targetDate = new Date('2031-07-08T00:00:00').getTime();
 
-// DOM elements for the new theme
+// DOM elements
 const animatedDisplayContainer = document.getElementById('totalSecondsAnimatedDisplay');
 const fadedBackgroundTimeElement = document.getElementById('fadedBackgroundTime');
 
-// Store refs to digit reels and previous values for animation
-let digitReels = [];
+// Store refs to flip cards and previous values
+let flipCards = [];
 let previousTotalSecondsString = '';
 
-// Function to create the initial digit slots
+// Function to create flip card structure
+function createFlipCard(currentDigit = 0) {
+    const slot = document.createElement('div');
+    slot.classList.add('digit-slot');
+    
+    const flipCard = document.createElement('div');
+    flipCard.classList.add('flip-card');
+    
+    const frontFace = document.createElement('div');
+    frontFace.classList.add('flip-card-face', 'flip-card-front');
+    frontFace.textContent = currentDigit;
+    
+    const backFace = document.createElement('div');
+    backFace.classList.add('flip-card-face', 'flip-card-back');
+    backFace.textContent = currentDigit;
+    
+    flipCard.appendChild(frontFace);
+    flipCard.appendChild(backFace);
+    slot.appendChild(flipCard);
+    
+    return {
+        slot: slot,
+        flipCard: flipCard,
+        frontFace: frontFace,
+        backFace: backFace,
+        currentValue: currentDigit
+    };
+}
+
+// Function to setup the animated display
 function setupAnimatedDisplay(initialSecondsString) {
     if (!animatedDisplayContainer) return;
-    animatedDisplayContainer.innerHTML = ''; // Clear any existing content
-    digitReels = [];
+    animatedDisplayContainer.innerHTML = '';
+    flipCards = [];
 
     const parts = initialSecondsString.split(',');
-    parts.forEach((part, index) => {
+    parts.forEach((part, partIndex) => {
         const digitGroup = document.createElement('div');
         digitGroup.classList.add('digit-group');
 
         for (let i = 0; i < part.length; i++) {
-            const char = part[i];
-            const slot = document.createElement('div');
-            slot.classList.add('digit-slot');
-
-            const reel = document.createElement('div');
-            reel.classList.add('digit-reel');
-
-            // Populate reel with numbers 0-9
-            for (let j = 0; j <= 9; j++) {
-                const numSpan = document.createElement('span');
-                numSpan.textContent = j;
-                reel.appendChild(numSpan);
-            }
-            slot.appendChild(reel);
-            digitGroup.appendChild(slot);
-            digitReels.push({ reel: reel, digitHeight: 0 }); // digitHeight will be calculated later
+            const digit = parseInt(part[i]) || 0;
+            const cardData = createFlipCard(digit);
+            digitGroup.appendChild(cardData.slot);
+            flipCards.push(cardData);
         }
+        
         animatedDisplayContainer.appendChild(digitGroup);
 
-        if (index < parts.length - 1) {
+        // Add comma separator (except for last part)
+        if (partIndex < parts.length - 1) {
             const comma = document.createElement('span');
             comma.classList.add('comma-separator');
             comma.textContent = ',';
             animatedDisplayContainer.appendChild(comma);
         }
     });
-
-    // Calculate digit height after DOM is updated (important for animation)
-    if (digitReels.length > 0 && digitReels[0].reel.querySelector('span')) {
-        const sampleDigitSpan = digitReels[0].reel.querySelector('span');
-        const digitHeight = sampleDigitSpan.offsetHeight;
-        digitReels.forEach(dr => dr.digitHeight = digitHeight);
-    }
 }
 
+// Function to animate a single flip card
+function flipToNewDigit(cardData, newDigit) {
+    if (cardData.currentValue === newDigit) return;
+    
+    // Set the back face to show the new digit
+    cardData.backFace.textContent = newDigit;
+    
+    // Add flipping class to trigger animation
+    cardData.flipCard.classList.add('flipping');
+    
+    // After animation completes, update front face and reset
+    setTimeout(() => {
+        cardData.frontFace.textContent = newDigit;
+        cardData.flipCard.classList.remove('flipping');
+        cardData.currentValue = newDigit;
+    }, 400); // Half of the CSS transition duration
+}
+
+// Function to update the animated display
 function updateAnimatedDisplay(totalSeconds) {
-    if (!animatedDisplayContainer || digitReels.length === 0) return;
+    if (!animatedDisplayContainer) return;
 
     const currentTotalSecondsString = totalSeconds.toLocaleString();
-
-    // If the number of digits or commas changes, rebuild the display
-    if (previousTotalSecondsString.length !== currentTotalSecondsString.length || 
-        (previousTotalSecondsString.match(/,/g) || []).length !== (currentTotalSecondsString.match(/,/g) || []).length) {
+    
+    // If structure changed significantly, rebuild
+    const currentCommaCount = (currentTotalSecondsString.match(/,/g) || []).length;
+    const previousCommaCount = (previousTotalSecondsString.match(/,/g) || []).length;
+    
+    if (currentTotalSecondsString.length !== previousTotalSecondsString.length || 
+        currentCommaCount !== previousCommaCount) {
         setupAnimatedDisplay(currentTotalSecondsString);
-        if (digitReels.length === 0) return; // Exit if setup failed or resulted in no reels
+        previousTotalSecondsString = currentTotalSecondsString;
+        return;
+    }
+    
+    // Update each digit with flip animation
+    let cardIndex = 0;
+    for (let i = 0; i < currentTotalSecondsString.length; i++) {
+        const char = currentTotalSecondsString[i];
+        if (char === ',') continue; // Skip commas
+        
+        if (cardIndex < flipCards.length) {
+            const newDigit = parseInt(char) || 0;
+            flipToNewDigit(flipCards[cardIndex], newDigit);
+            cardIndex++;
+        }
     }
     
     previousTotalSecondsString = currentTotalSecondsString;
-    let reelIndex = 0;
-
-    for (let i = 0; i < currentTotalSecondsString.length; i++) {
-        const char = currentTotalSecondsString[i];
-        if (char === ',') continue; // Skip commas for reel animation
-
-        if (reelIndex < digitReels.length) {
-            const digit = parseInt(char);
-            const { reel, digitHeight } = digitReels[reelIndex];
-            if (reel && digitHeight > 0) {
-                reel.style.transform = `translateY(-${digit * digitHeight}px)`;
-            }
-            reelIndex++;
-        }
-    }
 }
 
+// Function to update faded background time
 function updateFadedBackgroundTime(now) {
     if (!fadedBackgroundTimeElement) return;
     const hours = String(now.getHours()).padStart(2, '0');
@@ -93,17 +127,23 @@ function updateFadedBackgroundTime(now) {
     fadedBackgroundTimeElement.textContent = `${hours}:${minutes}`;
 }
 
+// Main countdown function
 function updateCountdown() {
     const now = new Date();
     const timeRemaining = targetDate - now.getTime();
 
     if (timeRemaining <= 0) {
-        if (animatedDisplayContainer) animatedDisplayContainer.innerHTML = '<div class="digit-slot"><span>0</span></div>'; // Simplified end state
-        document.querySelector('.info-title').textContent = '🎉 You\'ve reached 30! 🎉';
-        if (document.querySelector('.countdown-label-main')) {
-            document.querySelector('.countdown-label-main').textContent = "It's Here!";
-        }
-        if (fadedBackgroundTimeElement) fadedBackgroundTimeElement.textContent = "--:--";
+        // Countdown finished
+        flipCards.forEach(cardData => flipToNewDigit(cardData, 0));
+        
+        // Update titles
+        const titleElement = document.querySelector('.info-title');
+        const labelElement = document.querySelector('.countdown-label-main');
+        
+        if (titleElement) titleElement.textContent = '🎉 You\'ve reached 30! 🎉';
+        if (labelElement) labelElement.textContent = "Congratulations!";
+        if (fadedBackgroundTimeElement) fadedBackgroundTimeElement.textContent = "30!";
+        
         return;
     }
 
@@ -112,11 +152,11 @@ function updateCountdown() {
     updateFadedBackgroundTime(now);
 }
 
-// Function to calculate age-based statistics (can be kept for console logging)
+// Age statistics (for console logging)
 function calculateAgeStatistics() {
     const birthDate = new Date('2001-07-08');
     const thirtiethBirthday = new Date('2031-07-08');
-    const averageLifespan = 70; // years
+    const averageLifespan = 70;
 
     const now = new Date();
     const currentAge = (now - birthDate) / (1000 * 60 * 60 * 24 * 365.25);
@@ -134,21 +174,21 @@ function calculateAgeStatistics() {
     };
 }
 
-// Initialize
+// Initialize everything
 window.addEventListener('load', () => {
-    // Initial setup for display based on current remaining seconds
+    // Setup initial display
     const initialTimeRemaining = targetDate - new Date().getTime();
     const initialTotalSeconds = Math.max(0, Math.floor(initialTimeRemaining / 1000));
     setupAnimatedDisplay(initialTotalSeconds.toLocaleString());
     
-    updateCountdown(); // First immediate update
-    setInterval(updateCountdown, 1000); // Subsequent updates
-
-    calculateAgeStatistics(); // Log stats
-
-    // Fade-in for new elements if desired (ensure selectors match new HTML)
-    const container = document.querySelector('.container');
-    if(container) container.style.opacity = '1'; // Example fade-in for whole container
+    // Start the countdown
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+    
+    // Log statistics
+    calculateAgeStatistics();
+    
+    console.log('FlipClock countdown initialized! 🚀');
 });
 
 // Add some interactive effects (if elements still exist)
