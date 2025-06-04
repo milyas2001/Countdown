@@ -34,7 +34,8 @@ function createFlipCard(currentDigit = 0) {
         flipCard: flipCard,
         frontFace: frontFace,
         backFace: backFace,
-        currentValue: currentDigit
+        currentValue: currentDigit,
+        isAnimating: false // Track animation state
     };
 }
 
@@ -70,7 +71,10 @@ function setupAnimatedDisplay(initialSecondsString) {
 
 // Function to animate a single flip card
 function flipToNewDigit(cardData, newDigit) {
-    if (cardData.currentValue === newDigit) return;
+    // Don't animate if already animating or if value hasn't changed
+    if (cardData.isAnimating || cardData.currentValue === newDigit) return;
+    
+    cardData.isAnimating = true;
     
     // Set the back face to show the new digit
     cardData.backFace.textContent = newDigit;
@@ -83,7 +87,8 @@ function flipToNewDigit(cardData, newDigit) {
         cardData.frontFace.textContent = newDigit;
         cardData.flipCard.classList.remove('flipping');
         cardData.currentValue = newDigit;
-    }, 400); // Half of the CSS transition duration
+        cardData.isAnimating = false;
+    }, 600); // Match the CSS transition duration exactly (0.6s = 600ms)
 }
 
 // Function to update the animated display
@@ -102,6 +107,9 @@ function updateAnimatedDisplay(totalSeconds) {
         previousTotalSecondsString = currentTotalSecondsString;
         return;
     }
+    
+    // Only update if the string actually changed
+    if (currentTotalSecondsString === previousTotalSecondsString) return;
     
     // Update each digit with flip animation
     let cardIndex = 0;
@@ -134,7 +142,11 @@ function updateCountdown() {
 
     if (timeRemaining <= 0) {
         // Countdown finished
-        flipCards.forEach(cardData => flipToNewDigit(cardData, 0));
+        flipCards.forEach(cardData => {
+            if (!cardData.isAnimating) {
+                flipToNewDigit(cardData, 0);
+            }
+        });
         
         // Update titles
         const titleElement = document.querySelector('.info-title');
