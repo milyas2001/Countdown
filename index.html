@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time to 30 - Live Countdown</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="nav-left">
+                <span class="logo">⏰ Life Timer</span>
+            </div>
+            <div class="nav-center">
+                <span class="tagline">Subscribe to receive a notification upon our launch.</span>
+            </div>
+            <div class="nav-right">
+                <span class="follow">Follow us</span>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Earth/Globe -->
+            <div class="globe-container">
+                <div class="globe">
+                    <div class="globe-inner"></div>
+                    <div class="continents"></div>
+                </div>
+            </div>
+
+            <!-- Countdown Display -->
+            <div class="countdown-container">
+                <div class="countdown-item">
+                    <span class="countdown-number" id="days">00</span>
+                    <span class="countdown-label">Days</span>
+                </div>
+                <div class="countdown-item">
+                    <span class="countdown-number" id="hours">00</span>
+                    <span class="countdown-label">Hours</span>
+                </div>
+                <div class="countdown-item">
+                    <span class="countdown-number" id="minutes">00</span>
+                    <span class="countdown-label">Minutes</span>
+                </div>
+                <div class="countdown-item">
+                    <span class="countdown-number" id="seconds">00</span>
+                    <span class="countdown-label">Seconds</span>
+                </div>
+            </div>
+
+            <!-- Info Section -->
+            <div class="info-section">
+                <h2 class="info-title">Time Until I Turn 30</h2>
+                <p class="info-subtitle">Born: July 8, 2001 | Target: July 8, 2031</p>
+                <div class="total-seconds">
+                    <span>Total seconds remaining: </span>
+                    <span id="totalSeconds">0</span>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-left">
+                <span>© 2024 Life Timer</span>
+            </div>
+            <div class="footer-center">
+                <span>Your Email</span>
+                <button class="signup-btn">Sign Up</button>
+            </div>
+            <div class="footer-right">
+                <span>Emails for free</span>
+            </div>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 

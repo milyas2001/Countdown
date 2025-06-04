@@ -1,0 +1,327 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: #0a0a0a;
+    color: #ffffff;
+    overflow-x: hidden;
+    min-height: 100vh;
+}
+
+.container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    background: radial-gradient(ellipse at center, #1a1a2e 0%, #16213e 30%, #0a0a0a 100%);
+}
+
+/* Header Styles */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 40px;
+    font-size: 14px;
+    font-weight: 400;
+    opacity: 0.8;
+    position: relative;
+    z-index: 10;
+}
+
+.logo {
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.tagline {
+    color: #888;
+}
+
+.follow {
+    color: #888;
+}
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    min-height: 70vh;
+}
+
+/* Globe Styles */
+.globe-container {
+    position: relative;
+    margin-bottom: 60px;
+}
+
+.globe {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    position: relative;
+    background: radial-gradient(circle at 30% 30%, #4a5568, #2d3748, #1a202c);
+    box-shadow: 
+        inset 0 0 50px rgba(0, 0, 0, 0.8),
+        0 0 100px rgba(74, 85, 104, 0.3);
+    animation: rotate 20s linear infinite;
+    overflow: hidden;
+}
+
+.globe::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, transparent 30%, rgba(0, 0, 0, 0.3) 70%);
+}
+
+.globe-inner {
+    position: absolute;
+    top: 10%;
+    left: 10%;
+    width: 80%;
+    height: 80%;
+    border-radius: 50%;
+    background: 
+        radial-gradient(circle at 20% 20%, #68d391 5%, transparent 25%),
+        radial-gradient(circle at 70% 60%, #81c784 8%, transparent 30%),
+        radial-gradient(circle at 30% 80%, #a5d6a7 6%, transparent 25%),
+        radial-gradient(circle at 80% 30%, #c8e6c9 4%, transparent 20%);
+    opacity: 0.6;
+}
+
+.continents {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: 
+        radial-gradient(ellipse at 60% 30%, #4ade80 3%, transparent 15%),
+        radial-gradient(ellipse at 25% 70%, #22c55e 4%, transparent 18%),
+        radial-gradient(ellipse at 75% 80%, #16a34a 2%, transparent 12%);
+    opacity: 0.8;
+    animation: continentShift 30s ease-in-out infinite;
+}
+
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes continentShift {
+    0%, 100% { transform: rotate(0deg) scale(1); }
+    50% { transform: rotate(5deg) scale(1.02); }
+}
+
+/* Countdown Styles */
+.countdown-container {
+    display: flex;
+    gap: 40px;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.countdown-item {
+    text-align: center;
+    position: relative;
+}
+
+.countdown-number {
+    display: block;
+    font-size: clamp(4rem, 8vw, 8rem);
+    font-weight: 700;
+    line-height: 1;
+    background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+    filter: drop-shadow(0 4px 20px rgba(255, 255, 255, 0.1));
+    transition: all 0.3s ease;
+}
+
+.countdown-number:hover {
+    transform: scale(1.05);
+    text-shadow: 0 0 40px rgba(255, 255, 255, 0.5);
+}
+
+.countdown-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-top: 10px;
+}
+
+/* Info Section */
+.info-section {
+    text-align: center;
+    max-width: 600px;
+    margin: 40px 20px;
+}
+
+.info-title {
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+    font-weight: 600;
+    margin-bottom: 10px;
+    background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.info-subtitle {
+    color: #94a3b8;
+    font-size: 16px;
+    margin-bottom: 20px;
+}
+
+.total-seconds {
+    color: #64748b;
+    font-size: 14px;
+    font-family: 'Monaco', 'Menlo', monospace;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#totalSeconds {
+    color: #10b981;
+    font-weight: 600;
+}
+
+/* Footer Styles */
+.footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 40px;
+    font-size: 12px;
+    color: #64748b;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin-top: auto;
+}
+
+.footer-center {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.signup-btn {
+    background: #3b82f6;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.signup-btn:hover {
+    background: #2563eb;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .header,
+    .footer {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+    
+    .countdown-container {
+        gap: 20px;
+    }
+    
+    .countdown-number {
+        font-size: clamp(3rem, 12vw, 6rem);
+    }
+    
+    .globe {
+        width: 150px;
+        height: 150px;
+    }
+    
+    .header,
+    .footer {
+        padding: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .countdown-container {
+        gap: 15px;
+    }
+    
+    .countdown-number {
+        font-size: clamp(2.5rem, 15vw, 4rem);
+    }
+    
+    .globe {
+        width: 120px;
+        height: 120px;
+    }
+}
+
+/* Loading Animation */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.countdown-item {
+    animation: fadeInUp 1s ease 0.2s both;
+}
+
+.countdown-item:nth-child(2) {
+    animation-delay: 0.4s;
+}
+
+.countdown-item:nth-child(3) {
+    animation-delay: 0.6s;
+}
+
+.countdown-item:nth-child(4) {
+    animation-delay: 0.8s;
+}
+
+/* Glowing effect for active countdown */
+.countdown-number.pulse {
+    animation: pulse 1s ease-in-out;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        text-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+    }
+    50% {
+        text-shadow: 0 0 50px rgba(255, 255, 255, 0.6);
+    }
+} 

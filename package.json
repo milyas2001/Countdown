@@ -1,0 +1,27 @@
+{
+  "name": "countdown-to-30",
+  "version": "1.0.0",
+  "description": "A live countdown timer showing time remaining until turning 30",
+  "main": "index.html",
+  "scripts": {
+    "build": "echo 'No build step required for static site'",
+    "start": "echo 'Static site - open index.html'",
+    "dev": "python3 -m http.server 3000 || python -m http.server 3000"
+  },
+  "keywords": [
+    "countdown",
+    "timer",
+    "age",
+    "time-management",
+    "life-timer"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/countdown-to-30.git"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+} 
