@@ -1,5 +1,5 @@
-// Target date: July 8, 2031 (your 30th birthday)
-const targetDate = new Date('2031-07-08T00:00:00').getTime();
+// Target date (will be set dynamically by user)
+let targetDate = new Date('2031-07-08T00:00:00').getTime();
 
 // DOM elements
 const daysElement = document.getElementById('days');
@@ -7,6 +7,10 @@ const hoursElement = document.getElementById('hours');
 const minutesElement = document.getElementById('minutes');
 const secondsElement = document.getElementById('seconds');
 const totalSecondsElement = document.getElementById('totalSeconds');
+const targetDateInput = document.getElementById('targetDateInput');
+const updateDateBtn = document.getElementById('updateDateBtn');
+const countdownTitle = document.getElementById('countdownTitle');
+const dateInfo = document.getElementById('dateInfo');
 
 // Store previous values to add animation on change
 let previousValues = {
@@ -29,7 +33,7 @@ function updateCountdown() {
         totalSecondsElement.textContent = '0';
         
         // You could add celebration animation here
-        document.querySelector('.info-title').textContent = '🎉 You\'ve reached 30! 🎉';
+        countdownTitle.textContent = '🎉 Target Date Reached! 🎉';
         return;
     }
     
@@ -78,6 +82,61 @@ function updateElementWithAnimation(element, newValue, type) {
     element.textContent = newValue;
 }
 
+// Function to update target date based on user input
+function updateTargetDate() {
+    const inputValue = targetDateInput.value;
+    
+    if (!inputValue) {
+        alert('Please select a target date and time');
+        return;
+    }
+    
+    const newTargetDate = new Date(inputValue).getTime();
+    const now = new Date().getTime();
+    
+    if (newTargetDate <= now) {
+        alert('Please select a future date and time');
+        return;
+    }
+    
+    targetDate = newTargetDate;
+    
+    // Update the display
+    const targetDateObj = new Date(targetDate);
+    const formattedDate = targetDateObj.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+    
+    dateInfo.textContent = `Target: ${formattedDate}`;
+    countdownTitle.textContent = 'Time Until Your Target Date';
+    
+    // Immediately update countdown
+    updateCountdown();
+    
+    console.log(`Target date updated to: ${formattedDate}`);
+}
+
+// Function to set default date input value to current target
+function initializeDateInput() {
+    const currentTarget = new Date(targetDate);
+    const formattedInput = currentTarget.toISOString().slice(0, 16); // Format for datetime-local input
+    targetDateInput.value = formattedInput;
+    
+    // Update initial display
+    const formattedDate = currentTarget.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+    dateInfo.textContent = `Target: ${formattedDate}`;
+}
+
 // Function to calculate age-based statistics (like in the first image)
 function calculateAgeStatistics() {
     const birthDate = new Date('2001-07-08');
@@ -108,6 +167,19 @@ setInterval(updateCountdown, 1000);
 
 // Log statistics on page load
 window.addEventListener('load', () => {
+    // Initialize date input with current target date
+    initializeDateInput();
+    
+    // Add event listener for update button
+    updateDateBtn.addEventListener('click', updateTargetDate);
+    
+    // Also allow Enter key to update date
+    targetDateInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            updateTargetDate();
+        }
+    });
+    
     const stats = calculateAgeStatistics();
     console.log('Age Statistics:', stats);
     
@@ -116,6 +188,7 @@ window.addEventListener('load', () => {
         document.querySelector('.globe-container').style.opacity = '1';
         document.querySelector('.countdown-container').style.opacity = '1';
         document.querySelector('.info-section').style.opacity = '1';
+        document.querySelector('.date-input-section').style.opacity = '1';
     }, 100);
 });
 

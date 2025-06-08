@@ -14,7 +14,7 @@
         <!-- Header -->
         <header class="header">
             <div class="nav-left">
-                <span class="logo">⏰ Life Timer</span>
+                <span class="logo">⏰ Timer to 30under30</span>
             </div>
             <div class="nav-center">
                 <span class="tagline">Subscribe to receive a notification upon our launch.</span>
@@ -54,10 +54,20 @@
                 </div>
             </div>
 
+            <!-- Date Input Section -->
+            <div class="date-input-section">
+                <h2 class="input-title">Set Your Target Date</h2>
+                <div class="date-input-container">
+                    <label for="targetDateInput" class="date-label">Choose your target date:</label>
+                    <input type="datetime-local" id="targetDateInput" class="date-input">
+                    <button id="updateDateBtn" class="update-btn">Update Countdown</button>
+                </div>
+            </div>
+
             <!-- Info Section -->
             <div class="info-section">
-                <h2 class="info-title">Time Until I Turn 30</h2>
-                <p class="info-subtitle">Born: July 8, 2001 | Target: July 8, 2031</p>
+                <h2 class="info-title" id="countdownTitle">Time Until Your Target Date</h2>
+                <p class="info-subtitle" id="dateInfo">Target: Not set yet</p>
                 <div class="total-seconds">
                     <span>Total seconds remaining: </span>
                     <span id="totalSeconds">0</span>
