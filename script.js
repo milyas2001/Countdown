@@ -185,10 +185,14 @@ window.addEventListener('load', () => {
     
     // Add a subtle fade-in animation to the main elements
     setTimeout(() => {
-        document.querySelector('.globe-container').style.opacity = '1';
-        document.querySelector('.countdown-container').style.opacity = '1';
-        document.querySelector('.info-section').style.opacity = '1';
-        document.querySelector('.date-input-section').style.opacity = '1';
+        const elements = ['.globe-container', '.countdown-container', '.info-section', '.date-input-section'];
+        elements.forEach(selector => {
+            const element = document.querySelector(selector);
+            if (element) {
+                element.style.opacity = '1';
+                element.style.transform = 'translateY(0)';
+            }
+        });
     }, 100);
 });
 
